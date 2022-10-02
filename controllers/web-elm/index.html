@@ -27,7 +27,7 @@
         const mqtt_port = 8883;
 
         // create a client instance
-        const client = new Paho.MQTT.Client(mqtt_host, mqtt_port, "controller-web-elm_" + String(moment().unix()) + String(moment().milliseconds())); // with clientid empty, broker will generate one. To have more control, we create one ourselves
+        const client = new Paho.MQTT.Client(mqtt_host, mqtt_port, "test");//, "controller-web-elm_" + String(moment().unix()) + String(moment().milliseconds())); // with clientid empty, broker will generate one. To have more control, we create one ourselves
 
         // set callback functions
         client.onConnectionLost = onConnectionLost;
@@ -39,7 +39,7 @@
 
           client.connect({
             onSuccess: onConnectSuccess,  // onConnectSuccess is called when the connection is established
-            useSSL: true
+            useSSL: false
           });
         }
 
