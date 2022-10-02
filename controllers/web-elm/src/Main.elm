@@ -1,7 +1,7 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import Browser
-import Html exposing (Html, div)
+import Html exposing (Html, div, text)
 import SingleSlider exposing (..)
 
 
@@ -10,7 +10,19 @@ import SingleSlider exposing (..)
 
 
 main =
-    Browser.sandbox { init = init, update = update, view = view }
+    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
+
+
+
+-- SUBSCRIPTIONS
+
+
+port receiveMQTTMessage : (String -> msg) -> Sub msg
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    receiveMQTTMessage ReceivedMQTTMessage
 
 
 
@@ -18,15 +30,17 @@ main =
 
 
 type alias Model =
-    { singleSlider : SingleSlider.SingleSlider Msg }
+    { singleSlider : SingleSlider.SingleSlider Msg
+    , mqttMessage : String
+    }
 
 
 
 -- INIT
 
 
-init : Model
-init =
+init : () -> ( Model, Cmd Msg )
+init _ =
     let
         minFormatter =
             \value -> String.fromFloat value
@@ -41,9 +55,10 @@ init =
                     , onChange = SingleSliderChange
                     }
                     |> SingleSlider.withMinFormatter minFormatter
+            , mqttMessage = ""
             }
     in
-    model
+    ( model, Cmd.none )
 
 
 
@@ -52,9 +67,10 @@ init =
 
 type Msg
     = SingleSliderChange Float
+    | ReceivedMQTTMessage String
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SingleSliderChange newVal ->
@@ -62,7 +78,10 @@ update msg model =
                 newSlider =
                     SingleSlider.update newVal model.singleSlider
             in
-            { model | singleSlider = newSlider }
+            ( { model | singleSlider = newSlider }, Cmd.none )
+
+        ReceivedMQTTMessage msgString ->
+            ( { model | mqttMessage = msgString }, Cmd.none )
 
 
 
@@ -73,4 +92,5 @@ view : Model -> Html Msg
 view model =
     div []
         [ div [] [ SingleSlider.view model.singleSlider ]
+        , div [] [ text model.mqttMessage ]
         ]

@@ -16,6 +16,8 @@
         const app = Elm.Main.init({
             node: document.getElementById('app')
         });
+
+        app.ports.receiveMQTTMessage.send("My first MQTT message!");
     </script>
 </body>
 </html>
