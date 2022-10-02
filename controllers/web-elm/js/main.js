@@ -5253,6 +5253,7 @@ var $author$project$Main$receiveMQTTMessage = _Platform_incomingPort('receiveMQT
 var $author$project$Main$subscriptions = function (_v0) {
 	return $author$project$Main$receiveMQTTMessage($author$project$Main$ReceivedMQTTMessage);
 };
+var $elm$core$String$toFloat = _String_toFloat;
 var $carwow$elm_slider$SingleSlider$update = F2(
 	function (value, _v0) {
 		var slider = _v0.a;
@@ -5277,10 +5278,19 @@ var $author$project$Main$update = F2(
 				$elm$core$Platform$Cmd$none);
 		} else {
 			var msgString = msg.a;
+			var newVal = $elm$core$String$toFloat(msgString);
+			var newSlider = function () {
+				if (newVal.$ === 'Just') {
+					var val = newVal.a;
+					return A2($carwow$elm_slider$SingleSlider$update, val, model.singleSlider);
+				} else {
+					return model.singleSlider;
+				}
+			}();
 			return _Utils_Tuple2(
 				_Utils_update(
 					model,
-					{mqttMessage: msgString}),
+					{mqttMessage: msgString, singleSlider: newSlider}),
 				$elm$core$Platform$Cmd$none);
 		}
 	});
@@ -5306,7 +5316,6 @@ var $elm$html$Html$Events$targetValue = A2(
 	_List_fromArray(
 		['target', 'value']),
 	$elm$json$Json$Decode$string);
-var $elm$core$String$toFloat = _String_toFloat;
 var $elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {

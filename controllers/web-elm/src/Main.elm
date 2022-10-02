@@ -81,7 +81,19 @@ update msg model =
             ( { model | singleSlider = newSlider }, Cmd.none )
 
         ReceivedMQTTMessage msgString ->
-            ( { model | mqttMessage = msgString }, Cmd.none )
+            let
+                newVal =
+                    String.toFloat msgString
+
+                newSlider =
+                    case newVal of
+                        Just val ->
+                            SingleSlider.update val model.singleSlider
+
+                        Nothing ->
+                            model.singleSlider
+            in
+            ( { model | mqttMessage = msgString, singleSlider = newSlider }, Cmd.none )
 
 
 
