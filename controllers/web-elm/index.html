@@ -23,8 +23,8 @@
 
         app.ports.receiveMQTTMessage.send("Here the last MQTT message will be displayed!");
 
-        const mqtt_host = "picluster.a-h.wtf";
-        const mqtt_port = 8883;
+        const mqtt_host = "localhost";
+        const mqtt_port = 9001;
 
         // create a client instance
         const client = new Paho.MQTT.Client(mqtt_host, mqtt_port, "test");//, "controller-web-elm_" + String(moment().unix()) + String(moment().milliseconds())); // with clientid empty, broker will generate one. To have more control, we create one ourselves
