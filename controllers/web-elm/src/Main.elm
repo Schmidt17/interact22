@@ -1,8 +1,20 @@
 port module Main exposing (main)
 
 import Browser
-import Html exposing (Html, div, text)
-import SingleSlider exposing (..)
+import Html exposing (Html, div, input, text)
+import Html.Attributes exposing (..)
+
+
+
+-- HELPER DEFINITIONS
+
+
+attrMin =
+    Html.Attributes.min
+
+
+attrMax =
+    Html.Attributes.max
 
 
 
@@ -30,7 +42,7 @@ subscriptions _ =
 
 
 type alias Model =
-    { singleSlider : SingleSlider.SingleSlider Msg
+    { sliderValue : Int
     , mqttMessage : String
     }
 
@@ -42,19 +54,8 @@ type alias Model =
 init : () -> ( Model, Cmd Msg )
 init _ =
     let
-        minFormatter =
-            \value -> String.fromFloat value
-
         model =
-            { singleSlider =
-                SingleSlider.init
-                    { min = 0
-                    , max = 127
-                    , value = 50
-                    , step = 1
-                    , onChange = SingleSliderChange
-                    }
-                    |> SingleSlider.withMinFormatter minFormatter
+            { sliderValue = 0
             , mqttMessage = ""
             }
     in
@@ -66,7 +67,7 @@ init _ =
 
 
 type Msg
-    = SingleSliderChange Float
+    = SingleSliderChange Int
     | ReceivedMQTTMessage String
 
 
@@ -74,26 +75,22 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SingleSliderChange newVal ->
-            let
-                newSlider =
-                    SingleSlider.update newVal model.singleSlider
-            in
-            ( { model | singleSlider = newSlider }, Cmd.none )
+            ( { model | sliderValue = newVal }, Cmd.none )
 
         ReceivedMQTTMessage msgString ->
             let
                 newVal =
-                    String.toFloat msgString
+                    String.toInt msgString
 
-                newSlider =
+                newSliderValue =
                     case newVal of
                         Just val ->
-                            SingleSlider.update val model.singleSlider
+                            val
 
                         Nothing ->
-                            model.singleSlider
+                            model.sliderValue
             in
-            ( { model | mqttMessage = msgString, singleSlider = newSlider }, Cmd.none )
+            ( { model | mqttMessage = msgString, sliderValue = newSliderValue }, Cmd.none )
 
 
 
@@ -103,6 +100,15 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ div [] [ SingleSlider.view model.singleSlider ]
+        [ div []
+            [ input
+                [ type_ "range"
+                , attribute "orient" "vertical"
+                , attrMin "0"
+                , attrMax "127"
+                , value (String.fromInt model.sliderValue)
+                ]
+                []
+            ]
         , div [] [ text model.mqttMessage ]
         ]
