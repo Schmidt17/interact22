@@ -28,7 +28,7 @@
         const client_name = "test" + String(moment().unix()) + String(moment().milliseconds());
 
         // create a client instance
-        const client = new Paho.MQTT.Client(mqtt_host, mqtt_port, client_name);//, "controller-web-elm_" + String(moment().unix()) + String(moment().milliseconds())); // with clientid empty, broker will generate one. To have more control, we create one ourselves
+        const client = new Paho.MQTT.Client(mqtt_host, mqtt_port, client_name);
 
         // set callback functions
         client.onConnectionLost = onConnectionLost;
@@ -51,7 +51,7 @@
           // Once a connection has been made, subscribe to the needed channels
           console.log("Connected to MQTT broker at " + mqtt_host + ":" + mqtt_port);
 
-          client.subscribe("interact/test");
+          client.subscribe("interact/test", {qos: 1});
           console.log("Subscribed to topic interact/test");
 
           // attach the sending function to the respective port of the elm app
@@ -59,6 +59,8 @@
             var mqttMessage = new Paho.MQTT.Message(message);
 
             mqttMessage.destinationName = "interact/test";
+            mqttMessage.qos = 1;
+            mqttMessage.retained = true;
 
             client.send(mqttMessage); 
           })
