@@ -5173,15 +5173,23 @@ var $author$project$Main$receiveMQTTMessage = _Platform_incomingPort('receiveMQT
 var $author$project$Main$subscriptions = function (_v0) {
 	return $author$project$Main$receiveMQTTMessage($author$project$Main$ReceivedMQTTMessage);
 };
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Main$sendMQTTMessage = _Platform_outgoingPort('sendMQTTMessage', $elm$json$Json$Encode$string);
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'SingleSliderChange') {
+		if (msg.$ === 'SliderChanged') {
 			var newVal = msg.a;
-			return _Utils_Tuple2(
-				_Utils_update(
-					model,
-					{sliderValue: newVal}),
-				$elm$core$Platform$Cmd$none);
+			var _v1 = $elm$core$String$toInt(newVal);
+			if (_v1.$ === 'Just') {
+				var newIntVal = _v1.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{sliderValue: newIntVal}),
+					$author$project$Main$sendMQTTMessage(newVal));
+			} else {
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			}
 		} else {
 			var msgString = msg.a;
 			var newVal = $elm$core$String$toInt(msgString);
@@ -5200,7 +5208,9 @@ var $author$project$Main$update = F2(
 				$elm$core$Platform$Cmd$none);
 		}
 	});
-var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Main$SliderChanged = function (a) {
+	return {$: 'SliderChanged', a: a};
+};
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
 		return A2(
@@ -5222,6 +5232,39 @@ var $elm$virtual_dom$VirtualDom$attribute = F2(
 var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$html$Html$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+};
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
@@ -5246,7 +5289,8 @@ var $author$project$Main$view = function (model) {
 								$author$project$Main$attrMin('0'),
 								$author$project$Main$attrMax('127'),
 								$elm$html$Html$Attributes$value(
-								$elm$core$String$fromInt(model.sliderValue))
+								$elm$core$String$fromInt(model.sliderValue)),
+								$elm$html$Html$Events$onInput($author$project$Main$SliderChanged)
 							]),
 						_List_Nil)
 					])),
@@ -5256,6 +5300,14 @@ var $author$project$Main$view = function (model) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text(model.mqttMessage)
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$elm$core$String$fromInt(model.sliderValue))
 					]))
 			]));
 };

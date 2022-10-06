@@ -3,6 +3,7 @@ port module Main exposing (main)
 import Browser
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onInput)
 
 
 
@@ -30,6 +31,9 @@ main =
 
 
 port receiveMQTTMessage : (String -> msg) -> Sub msg
+
+
+port sendMQTTMessage : String -> Cmd msg
 
 
 subscriptions : Model -> Sub Msg
@@ -67,15 +71,22 @@ init _ =
 
 
 type Msg
-    = SingleSliderChange Int
+    = SliderChanged String
     | ReceivedMQTTMessage String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        SingleSliderChange newVal ->
-            ( { model | sliderValue = newVal }, Cmd.none )
+        SliderChanged newVal ->
+            case String.toInt newVal of
+                Just newIntVal ->
+                    ( { model | sliderValue = newIntVal }
+                    , sendMQTTMessage newVal
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
         ReceivedMQTTMessage msgString ->
             let
@@ -107,8 +118,10 @@ view model =
                 , attrMin "0"
                 , attrMax "127"
                 , value (String.fromInt model.sliderValue)
+                , onInput SliderChanged
                 ]
                 []
             ]
         , div [] [ text model.mqttMessage ]
+        , div [] [ text (String.fromInt model.sliderValue) ]
         ]

@@ -25,9 +25,10 @@
 
         const mqtt_host = "localhost";
         const mqtt_port = 9001;
+        const client_name = "test" + String(moment().unix()) + String(moment().milliseconds());
 
         // create a client instance
-        const client = new Paho.MQTT.Client(mqtt_host, mqtt_port, "test");//, "controller-web-elm_" + String(moment().unix()) + String(moment().milliseconds())); // with clientid empty, broker will generate one. To have more control, we create one ourselves
+        const client = new Paho.MQTT.Client(mqtt_host, mqtt_port, client_name);//, "controller-web-elm_" + String(moment().unix()) + String(moment().milliseconds())); // with clientid empty, broker will generate one. To have more control, we create one ourselves
 
         // set callback functions
         client.onConnectionLost = onConnectionLost;
@@ -49,11 +50,18 @@
         function onConnectSuccess() {
           // Once a connection has been made, subscribe to the needed channels
           console.log("Connected to MQTT broker at " + mqtt_host + ":" + mqtt_port);
-          // client.subscribe(thing_id + "/humidity");
-          // client.subscribe("astridtest/valves");
-          // waterBtn.classList.remove("disabled");
+
           client.subscribe("interact/test");
           console.log("Subscribed to topic interact/test");
+
+          // attach the sending function to the respective port of the elm app
+          app.ports.sendMQTTMessage.subscribe(function(message) {
+            var mqttMessage = new Paho.MQTT.Message(message);
+
+            mqttMessage.destinationName = "interact/test";
+
+            client.send(mqttMessage); 
+          })
         }
 
         // called when the client loses its connection
