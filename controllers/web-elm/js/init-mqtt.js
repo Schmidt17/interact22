@@ -1,6 +1,14 @@
+// configuration for the connection to the MQTT broker
 const mqtt_host = "localhost";
 const mqtt_port = 9001;
-const client_name = "test" + String(moment().unix()) + String(moment().milliseconds());
+// The client name comprises a generic prefix that describes the type of client
+// and a suffix that makes it unique, to allow multiple instances of the same client type to connect.
+// Prefix and suffix are joined with an underscore.
+const client_prefix = "web-elm";
+// To generate the unique suffix, the current client time with millisecond precision is used.
+// In the unlikely case that a name collision still occurs, reloading some time later will likely succeed.
+const client_unique_suffix = String(moment().unix()) + String(moment().milliseconds());
+const client_name = client_prefix + "_" + client_unique_suffix;
 
 // create a client instance
 const client = new Paho.MQTT.Client(mqtt_host, mqtt_port, client_name);
