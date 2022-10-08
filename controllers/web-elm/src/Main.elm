@@ -92,20 +92,28 @@ update msg model =
 
         ReceivedMQTTMessage msgString ->
             let
-                newVal =
-                    String.toInt msgString
-
                 newSliderValue =
-                    case newVal of
-                        Just val ->
-                            { value = val
-                            , disabled = False
+                    case msgString of
+                        "disconnected" ->
+                            { value = model.sliderValue
+                            , disabled = True
                             }
 
-                        Nothing ->
-                            { value = model.sliderValue
-                            , disabled = model.sliderDisabled
-                            }
+                        _ ->
+                            let
+                                newVal =
+                                    String.toInt msgString
+                            in
+                            case newVal of
+                                Just val ->
+                                    { value = val
+                                    , disabled = False
+                                    }
+
+                                Nothing ->
+                                    { value = model.sliderValue
+                                    , disabled = model.sliderDisabled
+                                    }
             in
             ( { model
                 | mqttMessage = msgString

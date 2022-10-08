@@ -5192,13 +5192,17 @@ var $author$project$Main$update = F2(
 			}
 		} else {
 			var msgString = msg.a;
-			var newVal = $elm$core$String$toInt(msgString);
 			var newSliderValue = function () {
-				if (newVal.$ === 'Just') {
-					var val = newVal.a;
-					return {disabled: false, value: val};
+				if (msgString === 'disconnected') {
+					return {disabled: true, value: model.sliderValue};
 				} else {
-					return {disabled: model.sliderDisabled, value: model.sliderValue};
+					var newVal = $elm$core$String$toInt(msgString);
+					if (newVal.$ === 'Just') {
+						var val = newVal.a;
+						return {disabled: false, value: val};
+					} else {
+						return {disabled: model.sliderDisabled, value: model.sliderValue};
+					}
 				}
 			}();
 			return _Utils_Tuple2(

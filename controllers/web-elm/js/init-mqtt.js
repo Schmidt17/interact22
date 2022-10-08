@@ -16,6 +16,7 @@ const client = new Paho.MQTT.Client(mqtt_host, mqtt_port, client_name);
 
 // variables to store actions that can be defined by the user
 var connectFollowUpAction = function() {};
+var connectionLostFollowUpAction = function() {};
 
 // set callback functions
 client.onConnectionLost = onConnectionLost;
@@ -23,11 +24,12 @@ client.onMessageArrived = function (message) {};
 
 
 // function to attempt to connect the client to the MQTT broker
-function connectToBroker(newConnectFollowUpAction, newOnMessageArrived, mqttTopic) {
+function connectToBroker(newConnectFollowUpAction, newOnMessageArrived, newOnConnectionLost, mqttTopic) {
   console.log("Trying to connect to MQTT broker at " + mqtt_host + ":" + mqtt_port + " ...");
 
   // set up the user-defined configuration
   connectFollowUpAction = newConnectFollowUpAction;
+  connectionLostFollowUpAction = newOnConnectionLost;
   client.onMessageArrived = newOnMessageArrived;
   topic = mqttTopic;
 
@@ -57,7 +59,7 @@ function onConnectFailure() {
   console.log("Connecting to the MQTT broker at " + mqtt_host + ":" + mqtt_port + " has failed");
 
   console.log("Trying to reconnect ...");
-  connectToBroker(connectFollowUpAction, client.onMessageArrived, topic);
+  connectToBroker(connectFollowUpAction, client.onMessageArrived, connectionLostFollowUpAction, topic);
 }
 
 
@@ -67,8 +69,10 @@ function onConnectionLost(responseObject) {
     console.log("onConnectionLost:" + responseObject.errorMessage);
   }
 
+  connectionLostFollowUpAction();
+
   console.log("Trying to reconnect ...");
-  connectToBroker(connectFollowUpAction, client.onMessageArrived, topic);
+  connectToBroker(connectFollowUpAction, client.onMessageArrived, connectionLostFollowUpAction, topic);
 }
 
 function sendMessage(message) {

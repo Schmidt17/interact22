@@ -41,8 +41,13 @@
           app.ports.receiveMQTTMessage.send(message.payloadString);
         }
 
+        // to be called when an established connection is lost
+        function disable() {
+            app.ports.receiveMQTTMessage.send("disconnected");
+        }
+
         // attempt to connect to the MQTT broker
-        connectToBroker(attachMessageSender, onMessageArrived, mqttTopic);
+        connectToBroker(attachMessageSender, onMessageArrived, disable, mqttTopic);
     </script>
 </body>
 </html>
