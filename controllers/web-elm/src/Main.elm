@@ -110,8 +110,8 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ div []
+    div [ class "container" ]
+        [ div [ class "slider-container" ]
             [ input
                 [ type_ "range"
                 , attribute "orient" "vertical"
@@ -122,6 +122,10 @@ view model =
                 ]
                 []
             ]
-        , div [] [ text model.mqttMessage ]
-        , div [] [ text (String.fromInt model.sliderValue) ]
+        , div [ class "label-container" ]
+            [ div [ class "labels" ]
+                [ div [] [ text ("Last MQTT message: " ++ model.mqttMessage) ]
+                , div [] [ text ("Current slider value: " ++ String.fromInt model.sliderValue) ]
+                ]
+            ]
         ]

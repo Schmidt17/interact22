@@ -26,6 +26,7 @@ client.onMessageArrived = function (message) {};
 function connectToBroker(newConnectFollowUpAction, newOnMessageArrived, mqttTopic) {
   console.log("Trying to connect to MQTT broker at " + mqtt_host + ":" + mqtt_port + " ...");
 
+  // set up the user-defined configuration
   connectFollowUpAction = newConnectFollowUpAction;
   client.onMessageArrived = newOnMessageArrived;
   topic = mqttTopic;

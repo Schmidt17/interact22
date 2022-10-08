@@ -1,5 +1,7 @@
+/* generated styling of input element */
 input[type=range] {
-  width: 38px;
+  width: 12vw;
+  min-width: 100px;
   -webkit-appearance: none;
   margin: 10px 0;
   height: 100%;
@@ -9,19 +11,21 @@ input[type=range]:focus {
 }
 input[type=range]::-webkit-slider-runnable-track {
   height: 100%;
-  width: 30px;
+  width: 12vw;
+  min-width: 100px;
   cursor: pointer;
   animate: 0.2s;
   box-shadow: 1px 1px 1px #000000;
-  background: #3071A9;
+  background: #399429;
   border-radius: 5px;
   border: 1px solid #000000;
 }
 input[type=range]::-webkit-slider-thumb {
   box-shadow: 1px 1px 1px #000000;
   border: 1px solid #000000;
-  width: 30px;
-  height: 15px;
+  width: 12vw;
+  min-width: 100px;
+  height: 30px;
   border-radius: 5px;
   background: #FFFFFF;
   cursor: pointer;
@@ -29,30 +33,33 @@ input[type=range]::-webkit-slider-thumb {
   margin-top: -1px;
 }
 input[type=range]:focus::-webkit-slider-runnable-track {
-  background: #3071A9;
+  background: #399429;
 }
 input[type=range]::-moz-range-track {
   height: 100%;
-  width: 30px;
+  width: 12vw;
+  min-width: 100px;
   cursor: pointer;
   animate: 0.2s;
   box-shadow: 1px 1px 1px #000000;
-  background: #3071A9;
+  background: #399429;
   border-radius: 5px;
   border: 1px solid #000000;
 }
 input[type=range]::-moz-range-thumb {
   box-shadow: 1px 1px 1px #000000;
   border: 1px solid #000000;
-  width: 30px;
-  height: 15px;
+  width: 12vw;
+  min-width: 100px;
+  height: 30px;
   border-radius: 5px;
   background: #FFFFFF;
   cursor: pointer;
 }
 input[type=range]::-ms-track {
   height: 100%;
-  width: 30px;
+  width: 12vw;
+  min-width: 100px;
   cursor: pointer;
   animate: 0.2s;
   background: transparent;
@@ -60,13 +67,13 @@ input[type=range]::-ms-track {
   color: transparent;
 }
 input[type=range]::-ms-fill-lower {
-  background: #3071A9;
+  background: #399429;
   border: 1px solid #000000;
   border-radius: 10px;
   box-shadow: 1px 1px 1px #000000;
 }
 input[type=range]::-ms-fill-upper {
-  background: #3071A9;
+  background: #399429;
   border: 1px solid #000000;
   border-radius: 10px;
   box-shadow: 1px 1px 1px #000000;
@@ -75,15 +82,44 @@ input[type=range]::-ms-thumb {
   margin-top: 1px;
   box-shadow: 1px 1px 1px #000000;
   border: 1px solid #000000;
-  width: 30px;
-  height: 15px;
+  width: 12vw;
+  min-width: 100px;
+  height: 30px;
   border-radius: 5px;
   background: #FFFFFF;
   cursor: pointer;
 }
 input[type=range]:focus::-ms-fill-lower {
-  background: #3071A9;
+  background: #399429;
 }
 input[type=range]:focus::-ms-fill-upper {
-  background: #3071A9;
+  background: #399429;
+}
+
+/* general styling */
+body {
+  height: 100vh;
+  background: black;
+  color: white;
+  font-family: sans-serif;
+}
+
+.container {
+  width: 70%;
+  /*max-height: 80%;*/
+  min-height: 80%;
+  margin: auto;
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+}
+
+.slider-container {
+  flex-grow: 3;
+}
+
+.label-container {
+  flex-grow: 1;
 }
