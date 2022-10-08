@@ -13,6 +13,7 @@
 
     <script src="js/moment.min.js" type="text/javascript"></script>
     <script src="js/paho_mqtt.min.js" type="text/javascript"></script>
+    <script src="js/init-mqtt.js" type="text/javascript"></script>
 
     <script src="js/elm-app.js" type="text/javascript"></script>
 
@@ -21,9 +22,31 @@
             node: document.getElementById('app')
         });
 
+        // Send an initial message to the elm app
         app.ports.receiveMQTTMessage.send("Here the last MQTT message will be displayed!");
-    </script>
 
-    <script src="js/init-mqtt.js" type="text/javascript"></script>
+        // function to attach the sending function to the respective port of the elm app
+        // this will be called upon successful connection to the MQTT broker
+        function attachMessageSender() {
+            app.ports.sendMQTTMessage.subscribe(function(message) {
+                var mqttMessage = new Paho.MQTT.Message(message);
+
+                mqttMessage.destinationName = "interact/test";
+                mqttMessage.qos = 1;
+                mqttMessage.retained = true;
+
+                client.send(mqttMessage); 
+            });
+        }
+
+        // to be called when a MQTT message arrives
+        function onMessageArrived(message) {
+          const msg_string = message.payloadString;
+          app.ports.receiveMQTTMessage.send(message.payloadString);
+        }
+
+        // attempt to connect to the MQTT broker
+        connectToBroker(attachMessageSender, onMessageArrived);
+    </script>
 </body>
 </html>

@@ -10,26 +10,33 @@ const client_prefix = "web-elm";
 const client_unique_suffix = String(moment().unix()) + String(moment().milliseconds());
 const client_name = client_prefix + "_" + client_unique_suffix;
 
-// create a client instance
+// create a MQTT client instance
 const client = new Paho.MQTT.Client(mqtt_host, mqtt_port, client_name);
+
+// variables to store actions that can be defined by the user
+var connectFollowUpAction = function() {};
 
 // set callback functions
 client.onConnectionLost = onConnectionLost;
-client.onMessageArrived = onMessageArrived;
+client.onMessageArrived = function (message) {};
 
-// connect the client
-function connect() {
+
+// function to attempt to connect the client to the MQTT broker
+function connectToBroker(newConnectFollowUpAction, newOnMessageArrived) {
   console.log("Trying to connect to MQTT broker at " + mqtt_host + ":" + mqtt_port + " ...");
 
+  connectFollowUpAction = newConnectFollowUpAction;
+  client.onMessageArrived = newOnMessageArrived;
+
   client.connect({
-    onSuccess: onConnectSuccess,  // onConnectSuccess is called when the connection is established
+    onSuccess: onConnectSuccess,
+    onFailure: onConnectFailure,
     useSSL: false
   });
 }
 
-connect();
 
-// called when the client connects
+// called when the client has connected
 function onConnectSuccess() {
   // Once a connection has been made, subscribe to the needed channels
   console.log("Connected to MQTT broker at " + mqtt_host + ":" + mqtt_port);
@@ -37,17 +44,16 @@ function onConnectSuccess() {
   client.subscribe("interact/test", {qos: 1});
   console.log("Subscribed to topic interact/test");
 
-  // attach the sending function to the respective port of the elm app
-  app.ports.sendMQTTMessage.subscribe(function(message) {
-    var mqttMessage = new Paho.MQTT.Message(message);
-
-    mqttMessage.destinationName = "interact/test";
-    mqttMessage.qos = 1;
-    mqttMessage.retained = true;
-
-    client.send(mqttMessage); 
-  })
+  // execute the follow-up function as defined by the user
+  connectFollowUpAction();
 }
+
+
+// called when the connection process has failed
+function onConnectFailure() {
+  console.log("Connecting to the MQTT broker at " + mqtt_host + ":" + mqtt_port + " has failed");
+}
+
 
 // called when the client loses its connection
 function onConnectionLost(responseObject) {
@@ -56,20 +62,5 @@ function onConnectionLost(responseObject) {
   }
 
   console.log("Trying to reconnect ...");
-  connect();
-}
-
-// called when a message arrives
-function onMessageArrived(message) {
-  const msg_string = message.payloadString;
-  // msg_dict = JSON.parse(message.payloadString);
-  // // console.log(msg_dict);
-
-  // if (message.destinationName == 'astridtest/valves') {
-  //   handleActuatorMessage(msg_dict);
-  // } else if (message.destinationName == 'astridtest/sensors') {
-  //   handleSensorMessage(msg_dict);
-  // }
-
-  app.ports.receiveMQTTMessage.send(message.payloadString);
+  connectToBroker(connectFollowUpAction, client.onMessageArrived);
 }
