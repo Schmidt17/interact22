@@ -25,18 +25,14 @@
         // Send an initial message to the elm app
         app.ports.receiveMQTTMessage.send("Here the last MQTT message will be displayed!");
 
+        // the MQTT topic to send and receive the messages
+        const mqttTopic = "interact/test";
+
         // function to attach the sending function to the respective port of the elm app
         // this will be called upon successful connection to the MQTT broker
         function attachMessageSender() {
-            app.ports.sendMQTTMessage.subscribe(function(message) {
-                var mqttMessage = new Paho.MQTT.Message(message);
-
-                mqttMessage.destinationName = "interact/test";
-                mqttMessage.qos = 1;
-                mqttMessage.retained = true;
-
-                client.send(mqttMessage); 
-            });
+            // the sendMessage function is provided by init-mqtt.js and takes the message as a string as its argument
+            app.ports.sendMQTTMessage.subscribe(sendMessage);
         }
 
         // to be called when a MQTT message arrives
@@ -46,7 +42,7 @@
         }
 
         // attempt to connect to the MQTT broker
-        connectToBroker(attachMessageSender, onMessageArrived);
+        connectToBroker(attachMessageSender, onMessageArrived, mqttTopic);
     </script>
 </body>
 </html>

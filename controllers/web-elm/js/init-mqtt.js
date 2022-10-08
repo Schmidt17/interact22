@@ -9,6 +9,7 @@ const client_prefix = "web-elm";
 // In the unlikely case that a name collision still occurs, reloading some time later will likely succeed.
 const client_unique_suffix = String(moment().unix()) + String(moment().milliseconds());
 const client_name = client_prefix + "_" + client_unique_suffix;
+var topic = "interact/test";
 
 // create a MQTT client instance
 const client = new Paho.MQTT.Client(mqtt_host, mqtt_port, client_name);
@@ -22,11 +23,12 @@ client.onMessageArrived = function (message) {};
 
 
 // function to attempt to connect the client to the MQTT broker
-function connectToBroker(newConnectFollowUpAction, newOnMessageArrived) {
+function connectToBroker(newConnectFollowUpAction, newOnMessageArrived, mqttTopic) {
   console.log("Trying to connect to MQTT broker at " + mqtt_host + ":" + mqtt_port + " ...");
 
   connectFollowUpAction = newConnectFollowUpAction;
   client.onMessageArrived = newOnMessageArrived;
+  topic = mqttTopic;
 
   client.connect({
     onSuccess: onConnectSuccess,
@@ -41,8 +43,8 @@ function onConnectSuccess() {
   // Once a connection has been made, subscribe to the needed channels
   console.log("Connected to MQTT broker at " + mqtt_host + ":" + mqtt_port);
 
-  client.subscribe("interact/test", {qos: 1});
-  console.log("Subscribed to topic interact/test");
+  client.subscribe(topic, {qos: 1});
+  console.log("Subscribed to topic " + topic);
 
   // execute the follow-up function as defined by the user
   connectFollowUpAction();
@@ -63,4 +65,14 @@ function onConnectionLost(responseObject) {
 
   console.log("Trying to reconnect ...");
   connectToBroker(connectFollowUpAction, client.onMessageArrived);
+}
+
+function sendMessage(message) {
+  var mqttMessage = new Paho.MQTT.Message(message);
+
+  mqttMessage.destinationName = topic;
+  mqttMessage.qos = 1;
+  mqttMessage.retained = true;
+
+  client.send(mqttMessage);
 }
