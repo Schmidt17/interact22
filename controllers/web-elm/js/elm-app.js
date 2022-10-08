@@ -5162,7 +5162,7 @@ var $elm$browser$Browser$element = _Browser_element;
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
-	var model = {mqttMessage: '', sliderValue: 0};
+	var model = {mqttMessage: '', sliderDisabled: true, sliderValue: 0};
 	return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 };
 var $author$project$Main$ReceivedMQTTMessage = function (a) {
@@ -5196,15 +5196,15 @@ var $author$project$Main$update = F2(
 			var newSliderValue = function () {
 				if (newVal.$ === 'Just') {
 					var val = newVal.a;
-					return val;
+					return {disabled: false, value: val};
 				} else {
-					return model.sliderValue;
+					return {disabled: model.sliderDisabled, value: model.sliderValue};
 				}
 			}();
 			return _Utils_Tuple2(
 				_Utils_update(
 					model,
-					{mqttMessage: msgString, sliderValue: newSliderValue}),
+					{mqttMessage: msgString, sliderDisabled: newSliderValue.disabled, sliderValue: newSliderValue.value}),
 				$elm$core$Platform$Cmd$none);
 		}
 	});
@@ -5231,6 +5231,15 @@ var $elm$virtual_dom$VirtualDom$attribute = F2(
 	});
 var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$html$Html$Events$alwaysStop = function (x) {
@@ -5289,16 +5298,22 @@ var $author$project$Main$view = function (model) {
 					[
 						A2(
 						$elm$html$Html$input,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$type_('range'),
-								A2($elm$html$Html$Attributes$attribute, 'orient', 'vertical'),
-								$author$project$Main$attrMin('0'),
-								$author$project$Main$attrMax('127'),
-								$elm$html$Html$Attributes$value(
-								$elm$core$String$fromInt(model.sliderValue)),
-								$elm$html$Html$Events$onInput($author$project$Main$SliderChanged)
-							]),
+						_Utils_ap(
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$type_('range'),
+									A2($elm$html$Html$Attributes$attribute, 'orient', 'vertical'),
+									$author$project$Main$attrMin('0'),
+									$author$project$Main$attrMax('127'),
+									$elm$html$Html$Attributes$value(
+									$elm$core$String$fromInt(model.sliderValue)),
+									$elm$html$Html$Events$onInput($author$project$Main$SliderChanged)
+								]),
+							model.sliderDisabled ? _List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('disabled'),
+									$elm$html$Html$Attributes$disabled(true)
+								]) : _List_Nil),
 						_List_Nil)
 					])),
 				A2(
@@ -5331,6 +5346,14 @@ var $author$project$Main$view = function (model) {
 									[
 										$elm$html$Html$text(
 										'Current slider value: ' + $elm$core$String$fromInt(model.sliderValue))
+									])),
+								A2(
+								$elm$html$Html$div,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$elm$html$Html$text(
+										'Slider disabled: ' + (model.sliderDisabled ? 'True' : 'False'))
 									]))
 							]))
 					]))

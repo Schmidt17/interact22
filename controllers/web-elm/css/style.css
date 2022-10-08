@@ -106,7 +106,6 @@ body {
 
 .container {
   width: 70%;
-  /*max-height: 80%;*/
   min-height: 80%;
   margin: auto;
   text-align: center;
@@ -122,4 +121,37 @@ body {
 
 .label-container {
   flex-grow: 1;
+}
+
+/* custom styling for disabled slider */
+input[type=range].disabled::-moz-range-track {
+  background: #a2a6a1;
+}
+
+input[type=range].disabled::-webkit-slider-runnable-track {
+  background: #a2a6a1;
+}
+
+input[type=range].disabled::-webkit-slider-runnable-track {
+  background: #a2a6a1;
+}
+
+input[type=range].disabled:focus::-webkit-slider-runnable-track {
+  background: #a2a6a1;
+}
+
+input[type=range].disabled::-ms-fill-lower {
+  background: #a2a6a1;
+}
+
+input[type=range].disabled::-ms-fill-upper {
+  background: #a2a6a1;
+}
+
+input[type=range].disabled:focus::-ms-fill-lower {
+  background: #a2a6a1;
+}
+
+input[type=range].disabled:focus::-ms-fill-upper {
+  background: #a2a6a1;
 }

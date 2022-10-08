@@ -48,6 +48,7 @@ subscriptions _ =
 type alias Model =
     { sliderValue : Int
     , mqttMessage : String
+    , sliderDisabled : Bool
     }
 
 
@@ -61,6 +62,7 @@ init _ =
         model =
             { sliderValue = 0
             , mqttMessage = ""
+            , sliderDisabled = True
             }
     in
     ( model, Cmd.none )
@@ -96,12 +98,22 @@ update msg model =
                 newSliderValue =
                     case newVal of
                         Just val ->
-                            val
+                            { value = val
+                            , disabled = False
+                            }
 
                         Nothing ->
-                            model.sliderValue
+                            { value = model.sliderValue
+                            , disabled = model.sliderDisabled
+                            }
             in
-            ( { model | mqttMessage = msgString, sliderValue = newSliderValue }, Cmd.none )
+            ( { model
+                | mqttMessage = msgString
+                , sliderValue = newSliderValue.value
+                , sliderDisabled = newSliderValue.disabled
+              }
+            , Cmd.none
+            )
 
 
 
@@ -113,19 +125,39 @@ view model =
     div [ class "container" ]
         [ div [ class "slider-container" ]
             [ input
-                [ type_ "range"
-                , attribute "orient" "vertical"
-                , attrMin "0"
-                , attrMax "127"
-                , value (String.fromInt model.sliderValue)
-                , onInput SliderChanged
-                ]
+                ([ type_ "range"
+                 , attribute "orient" "vertical"
+                 , attrMin "0"
+                 , attrMax "127"
+                 , value (String.fromInt model.sliderValue)
+                 , onInput SliderChanged
+                 ]
+                    ++ (if model.sliderDisabled then
+                            [ class "disabled"
+                            , disabled True
+                            ]
+
+                        else
+                            []
+                       )
+                )
                 []
             ]
         , div [ class "label-container" ]
             [ div [ class "labels" ]
                 [ div [] [ text ("Last MQTT message: " ++ model.mqttMessage) ]
                 , div [] [ text ("Current slider value: " ++ String.fromInt model.sliderValue) ]
+                , div []
+                    [ text
+                        ("Slider disabled: "
+                            ++ (if model.sliderDisabled then
+                                    "True"
+
+                                else
+                                    "False"
+                               )
+                        )
+                    ]
                 ]
             ]
         ]

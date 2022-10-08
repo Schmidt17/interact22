@@ -55,6 +55,9 @@ function onConnectSuccess() {
 // called when the connection process has failed
 function onConnectFailure() {
   console.log("Connecting to the MQTT broker at " + mqtt_host + ":" + mqtt_port + " has failed");
+
+  console.log("Trying to reconnect ...");
+  connectToBroker(connectFollowUpAction, client.onMessageArrived, topic);
 }
 
 
@@ -65,7 +68,7 @@ function onConnectionLost(responseObject) {
   }
 
   console.log("Trying to reconnect ...");
-  connectToBroker(connectFollowUpAction, client.onMessageArrived);
+  connectToBroker(connectFollowUpAction, client.onMessageArrived, topic);
 }
 
 function sendMessage(message) {
