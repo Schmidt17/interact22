@@ -1,11 +1,11 @@
-import pyaudio
+import sounddevice as sd
 import numpy as np
 import paho.mqtt.client as mqtt
 import time
 
 
 #------------------#
-# pyaudio setup    #
+# audio setup      #
 #------------------#
 
 SAMPLERATE = 44100
@@ -23,16 +23,17 @@ s = s1 + s2
 s = (s - np.min(s)) / (np.max(s) - np.min(s))
 # scale down a bit to make it not too loud
 s = 0.2 * s
-# make sure the waveform's dtype matches the format expected by the pyaudio stream
+# make sure the waveform's dtype matches the format expected by the audio stream
 s = s.astype(np.float32)
+s = s.reshape((-1, 1))
 
 # initialize the global volume
 # we will later set this based on the incoming MQTT messages
 volume = 1.0
 
-def play(in_data, frame_count, time_info, status):
+def play(outdata, frames, time, status):
 	"""The callback function that feeds the audio output stream"""
-	return volume * s, pyaudio.paContinue
+	outdata[:] = volume * s
 
 
 #------------------#
@@ -67,28 +68,9 @@ if __name__ == '__main__':
 	mqtt_client.loop_start()
 
 	# set up the audio output stream
-	pa = pyaudio.PyAudio()
-
-	stream = pa.open(format=pyaudio.paFloat32,          # it is very important to always feed samples in the format specified here to this stream, can otherwise lead to distorted sound
-                     channels=1,                        # mono
-                     rate=SAMPLERATE,
-                     output=True,
-                     frames_per_buffer=BUFFERSIZE,
-                     start=False, 						# don't start streaming yet
-                     stream_callback=play)              # whenever the buffer is ready for new samples, it will call this function to obtain the next chunk
-
-	# start the audio output stream
-	stream.start_stream()
-
-	# keep the stream alive until the user makes any input
-	cont = input("Press Enter to stop the playback")
-
-	# stop the audio output stream
-	stream.stop_stream()
-	stream.close()
-
-	# close PyAudio
-	pa.terminate()
+	with sd.OutputStream(samplerate=SAMPLERATE, blocksize=BUFFERSIZE, channels=1, callback=play):
+		# keep the stream alive until the user makes any input
+		cont = input("Press Enter to stop the playback")
 
 	# stop the MQTT event loop
 	mqtt_client.loop_stop()

@@ -1,2 +1,2 @@
-pyaudio
+sounddevice
 paho-mqtt
