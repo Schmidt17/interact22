@@ -32,8 +32,8 @@ s = s.reshape((-1, 1))
 volume = 1.0
 
 def play(outdata, frames, time, status):
-	"""The callback function that feeds the audio output stream"""
-	outdata[:] = volume * s
+    """The callback function that feeds the audio output stream"""
+    outdata[:] = volume * s
 
 
 #------------------#
@@ -44,33 +44,33 @@ def play(outdata, frames, time, status):
 client_id = "example-audio-player_{time.time()}"
 
 def on_connect(client, userdata, flags, rc):
-	print("Connected to MQTT broker")
-	client.subscribe("interact/test")
+    print("Connected to MQTT broker")
+    client.subscribe("interact/test")
 
 def on_message(client, userdata, message):
-	try:
-		val = float(message.payload)
-	except:
-		return
+    try:
+        val = float(message.payload)
+    except:
+        return
 
-	global volume
-	volume = val / 127.0
+    global volume
+    volume = val / 127.0
 
 
 if __name__ == '__main__':
-	# set up the MQTT connection
-	mqtt_client = mqtt.Client(client_id=client_id)
+    # set up the MQTT connection
+    mqtt_client = mqtt.Client(client_id=client_id)
 
-	mqtt_client.on_connect = on_connect
-	mqtt_client.on_message = on_message
+    mqtt_client.on_connect = on_connect
+    mqtt_client.on_message = on_message
 
-	mqtt_client.connect("localhost", 1883, 60)
-	mqtt_client.loop_start()
+    mqtt_client.connect("localhost", 1883, 60)
+    mqtt_client.loop_start()
 
-	# set up the audio output stream
-	with sd.OutputStream(samplerate=SAMPLERATE, blocksize=BUFFERSIZE, channels=1, callback=play):
-		# keep the stream alive until the user makes any input
-		cont = input("Press Enter to stop the playback")
+    # set up the audio output stream
+    with sd.OutputStream(samplerate=SAMPLERATE, blocksize=BUFFERSIZE, channels=1, callback=play):
+        # keep the stream alive until the user makes any input
+        cont = input("Press Enter to stop the playback")
 
-	# stop the MQTT event loop
-	mqtt_client.loop_stop()
+    # stop the MQTT event loop
+    mqtt_client.loop_stop()
