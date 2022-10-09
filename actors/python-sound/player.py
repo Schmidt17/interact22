@@ -29,7 +29,7 @@ s = s.reshape((-1, 1))
 
 # initialize the global volume
 # we will later set this based on the incoming MQTT messages
-volume = 1.0
+volume = 0.5
 
 def play(outdata, frames, time, status):
     """The callback function that feeds the audio output stream"""
@@ -53,8 +53,20 @@ def on_message(client, userdata, message):
     except:
         return
 
+    new_volume = val / 127.0
+
+    # test whether the sent value can be accepted
     global volume
-    volume = val / 127.0
+    if 0 <= new_volume <= 0.5:  # arbitrary boundaries for demonstration
+        volume = val / 127.0
+    else:
+        # if the value can not be accepted, send back the actual volume converted to the closest int representation
+        current_volume_int = round(volume * 127)
+        send_message(client, str(current_volume_int))
+
+
+def send_message(client, message):
+    client.publish("interact/test", message, qos=1, retain=True)
 
 
 if __name__ == '__main__':
